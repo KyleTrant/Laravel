@@ -3,7 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-
+use App\Interfaces\ITaskService;
+use App\Services\TaskService;
 class RepositoryServiceProvider extends ServiceProvider
 {
     /**
@@ -17,10 +18,7 @@ class RepositoryServiceProvider extends ServiceProvider
             'App\Interfaces\UserInterface',
             'App\Repositories\UserRepository'
         );
-        $this->app->bind(
-            'App\Interfaces\TaskInterface',
-            'App\Repositories\TaskRepository'
-        );
+        $this->app->bind(ITaskService::class, TaskService::class);
     }
 
     /**

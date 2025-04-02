@@ -1,26 +1,76 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Interfaces\TaskInterface;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
+
+use App\Http\Requests\TaskRequest;
+use App\Interfaces\ITaskService;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Response;
+use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
-    protected $taskRepository;
+    private ITaskService $taskService;
 
-    public function __construct(TaskInterface $taskRepository)
+    public function __construct(ITaskService $taskService)
     {
-        $this->taskRepository = $taskRepository;
+        $this->taskService = $taskService;
     }
 
     public function index(): Response
     {
-        $tasks = $this->taskRepository->getUserTask(); 
+        try {
+            return Inertia::render('Tasks/Index', [
+                'tasks' => $this->taskService->getUserTasks(Auth::id())
+            ]);
+        } catch (\Exception $e) {
+            return Inertia::render('Error', [
+                'message' => $e->getMessage() 
+            ]);
+        }
+    }
 
-        return Inertia::render('Tasks/Index', [
-            'tasks' => $tasks
-        ]);
+   
+    public function store(TaskRequest $request): Response
+    {
+        try {
+            $this->taskService->createTask(Auth::id(), $request->validated());
+            return Inertia::render('Tasks/Index', [
+                'tasks' => $this->taskService->getUserTasks(Auth::id())
+            ]);
+
+        } 
+        catch (\Exception $e) {
+            return Inertia::render('Error', [
+                'message' => $e->getMessage() 
+            ]);
+        }
+    }
+    public function update(TaskRequest $request, int $id): Response
+    {
+        try {
+            $this->taskService->updateTask(Auth::id(), $id, $request->validated());
+            return Inertia::render('Tasks/Index', [
+                'tasks' => $this->taskService->getUserTasks(Auth::id())
+            ]);
+        } catch (\Exception $e) {
+            return Inertia::render('Error', [
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    public function destroy(int $id): Response
+    {
+        try {
+            $this->taskService->deleteTask(Auth::id(), $id);
+            return Inertia::render('Tasks/Index', [
+                'tasks' => $this->taskService->getUserTasks(Auth::id())
+            ]);
+        } catch (\Exception $e) {
+            return Inertia::render('Error', [
+                'message' => $e->getMessage()
+            ]);
+        }
     }
 }
