@@ -3,8 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Interfaces\ITaskService;
-use App\Services\TaskService;
+use App\Services\Task\TaskService;
+use App\Services\Task\ITaskService;
+
 class RepositoryServiceProvider extends ServiceProvider
 {
     /**

@@ -18,7 +18,7 @@ mysqlSelect:
 	docker compose exec mysql mysql -u root -p
 
 artisan:
-	docker-compose run --rm artisan $(filter-out $@,$(MAKECMDGOALS))
+	docker compose run --rm artisan $(filter-out $@,$(MAKECMDGOALS))
 # ------------- NPM  -----------------
 npm:
 	docker-compose run --rm npm $(filter-out $@,$(MAKECMDGOALS))
@@ -42,3 +42,8 @@ provision: up
 dev: up mix-watch
 %:
 	@:
+
+
+
+
+# docker compose run --rm artisan db:seed --class=TaskSeeder
