@@ -1,15 +1,19 @@
 import React from 'react';
 import TaskTable from '@/Pages/Task/TaskTable'; 
 import { Task } from '@/Pages/Task/Task';
-import { Heading, Container , Button, ButtonGroup, Flex } from "@chakra-ui/react"
+import { Heading, Container , Button, ButtonGroup, Flex } from "@chakra-ui/react";
 import AddTask from '@/Pages/Task/AddTask';
-import {usePage} from "@inertiajs/react"
+import {usePage} from "@inertiajs/react";
+import { Toaster, toaster } from "@/Components/ui/toaster"
 interface TaskPageProps {
   tasks: Task[];
+  statuses: { [key: string]: string };
 }
 
-const TaskPage: React.FC<TaskPageProps> = ({ tasks}) => {
-    const {errors} = usePage().props
+
+const TaskPage: React.FC<TaskPageProps> = ({ tasks, statuses }) => {
+ 
+  const {errors} = usePage().props;
   return (
     <Container>
         <Flex justify="center" align="center" mt={6} >
@@ -18,22 +22,11 @@ const TaskPage: React.FC<TaskPageProps> = ({ tasks}) => {
             </Heading>
         </Flex>
         <Flex justifyContent="flex-end" mb={6}>
-            <AddTask />
-            <Button 
-                border="5px" 
-                variant="subtle" 
-                bg="blue.500"      
-                color="white"      
-                mr={2}        
-                rounded="md"
-            >
-            <a href="https://chakra-ui.com">Chakra UI</a>
-            </Button>
+        <AddTask statuses={statuses} />
         </Flex>
-      <TaskTable tasks={tasks} />
+      <TaskTable tasks={tasks} statuses={statuses}/>
+      <Toaster />
   </Container>
-      
-   
   );
 };
 

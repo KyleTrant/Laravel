@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState ,useEffect} from "react";
 import {
   Button,
   CloseButton,
@@ -12,85 +12,62 @@ import {
   Field,
   Fieldset,
   Input,
-
+  
 } from "@chakra-ui/react";
 import { Task } from "@/Pages/Task/Task";
 import { router, usePage } from '@inertiajs/react'
 import { toaster } from "@/Components/ui/toaster"
 
-interface AddTaskProps {
+interface EditTaskProps {
+  task: Task;
   statuses: { [key: string]: string };
-}
-const AddTask: React.FC<AddTaskProps> = ({ statuses}) => {
-  console.log("AAAAAAAAA");
+} 
+  const EditTask: React.FC<EditTaskProps> = ({task, statuses}) => {
+  console.log("bbbb");
   const dialog = useDialog();
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
-  const [task, setTask] = useState<Task>({
-    id: Date.now(),
-    title: "",
-    description: "",
-    start_date: "",
-    end_date: "",
-    start_time: "",
-    end_time: "",
-    status:"pending",
-  });
+  const [updatedTask, setUpdatedTask] = useState<Task>(task);
+  useEffect(() => {
+    setUpdatedTask(task);
+  }, [task]);
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    setTask({ ...task, [e.target.name]: e.target.value });
+    setUpdatedTask({ ...updatedTask, [e.target.name]: e.target.value });
   };
 
-  const handleSave = async () => {
-
-    try {
-      const taskData = {
-        title: task.title,
-        description: task.description ?? "",
-        start_date: task.start_date,
-        end_date: task.end_date,
-        start_time: task.start_time,
-        end_time: task.end_time,
-        status: task.status,
+  const handleSave = () => {
+    const taskData = {
+        title: updatedTask.title,
+        description: updatedTask.description || "",
+        start_date: updatedTask.start_date,
+        end_date: updatedTask.end_date,
+        start_time: updatedTask.start_time,
+        end_time: updatedTask.end_time,
+        status: updatedTask.status,
       };
-     
-      router.post('/tasks/addtask', taskData, {
-        onSuccess: () => {
-          // dialog.onClose();
-          setFormErrors({});
-          setTask({
-            id: Date.now(),
-            title: "",
-            description: "",
-            start_date: "",
-            end_date: "",
-            start_time: "",
-            end_time: "",
-            status: "pending",
-          });
-          toaster.create({
-            title: `Add task successfully`,
-            type: "success",
-          });
-        },
-        onError: (error) => {
-          setFormErrors(error);
-          toaster.create({
-            title: `Add task fail`,
-            type: "error",
-          });
-        }
-      });
-    } catch (error) {
-      console.error("Error adding task:", error);
-      alert("Something went wrong!");
-    }
+    router.put(`/tasks/${task.id}`, taskData, {
+      onSuccess: () => {
+        toaster.create({
+          title: `update task successfully`,
+          type: "success",
+        });
+        setFormErrors({});
+      },
+      onError: (error) => {
+        setFormErrors(error);
+        toaster.create({
+          title: `update task fail`,
+          type: "error",
+        });
+      }
+    });
   };
 
   return (
     <Dialog.RootProvider value={dialog}>
       <Dialog.Trigger asChild>
-      <Button variant="solid" size="sm" colorPalette="blue" onClick={()=> { setFormErrors({});}}>Add Task</Button>
+        <Button variant="solid" size="sm" colorPalette="yellow" onClick={()=> { setFormErrors({});}}>Edit Task</Button>
       </Dialog.Trigger>
       <Portal>
         <Dialog.Backdrop />
@@ -99,19 +76,19 @@ const AddTask: React.FC<AddTaskProps> = ({ statuses}) => {
             <Dialog.Body>
             <form onSubmit={(e) => e.preventDefault()}>
               <Fieldset.Root size="lg">
-                <Fieldset.Legend>Add Task</Fieldset.Legend>
+                <Fieldset.Legend>Edit Task</Fieldset.Legend>
                 <Fieldset.Content>
                   <Field.Root required invalid={!!formErrors.title}>
                     <Field.Label>Task Title
                     <Field.RequiredIndicator />
                     </Field.Label>
-                    <Input name="title" value={task.title} onChange={handleChange} placeholder="Enter task title" required />
+                    <Input name="title" value={updatedTask.title} onChange={handleChange} placeholder="Enter task title" required />
                     {formErrors.title && <Field.ErrorText>{formErrors.title}</Field.ErrorText>}
                   </Field.Root>
 
                   <Field.Root>
                     <Field.Label>Description</Field.Label>
-                    <Textarea name="description" value={task.description} onChange={handleChange} placeholder="Task description" />
+                    <Textarea name="description" value={task.description || ""} onChange={handleChange} placeholder="Task description" />
                     {formErrors.Description && <Field.ErrorText>{formErrors.Description}</Field.ErrorText>}
                   </Field.Root >
 
@@ -119,7 +96,7 @@ const AddTask: React.FC<AddTaskProps> = ({ statuses}) => {
                     <Field.Label>Start Date
                     <Field.RequiredIndicator />
                     </Field.Label>
-                    <Input type="date" name="start_date" value={task.start_date} onChange={handleChange} required />
+                    <Input type="date" name="start_date" value={updatedTask.start_date} onChange={handleChange} required />
                     {formErrors.start_date && <Field.ErrorText>{formErrors.start_date}</Field.ErrorText>}
                   </Field.Root>
                   
@@ -127,7 +104,7 @@ const AddTask: React.FC<AddTaskProps> = ({ statuses}) => {
                     <Field.Label>End Date
                     <Field.RequiredIndicator />
                     </Field.Label>
-                    <Input type="date" name="end_date" value={task.end_date} onChange={handleChange} required />
+                    <Input type="date" name="end_date" value={updatedTask.end_date} onChange={handleChange} required />
                     {formErrors.end_date && <Field.ErrorText>{formErrors.end_date}</Field.ErrorText>}
                   </Field.Root>
 
@@ -135,7 +112,7 @@ const AddTask: React.FC<AddTaskProps> = ({ statuses}) => {
                     <Field.Label>Start Time
                     <Field.RequiredIndicator />
                     </Field.Label>
-                    <Input type="time" step="1" name="start_time" value={task.start_time} onChange={handleChange} required />
+                    <Input type="time" step="1" name="start_time" value={updatedTask.start_time} onChange={handleChange} required />
                     {formErrors.start_time && <Field.ErrorText>{formErrors.start_time}</Field.ErrorText>}
                   </Field.Root>
 
@@ -143,7 +120,7 @@ const AddTask: React.FC<AddTaskProps> = ({ statuses}) => {
                     <Field.Label>End Time
                     <Field.RequiredIndicator />
                     </Field.Label>
-                    <Input type="time" step="1" name="end_time" value={task.end_time} onChange={handleChange} required />
+                    <Input type="time" step="1" name="end_time" value={updatedTask.end_time} onChange={handleChange} required />
                     {formErrors.end_time && <Field.ErrorText>{formErrors.end_time}</Field.ErrorText>}
                   </Field.Root>
 
@@ -152,14 +129,13 @@ const AddTask: React.FC<AddTaskProps> = ({ statuses}) => {
                     <Field.RequiredIndicator />
                     </Field.Label>
                     <NativeSelect.Root>
-                    <NativeSelect.Field name="status" value={task.status} onChange={handleChange}>
+                    <NativeSelect.Field name="status" value={updatedTask.status} onChange={handleChange}>
                     {Object.entries(statuses).map(([key, value]) => (
                       <option key={key} value={key}>
                         {value}
                       </option>
                     ))}
                   </NativeSelect.Field>
-
                       <NativeSelect.Indicator />
                     </NativeSelect.Root>
                   </Field.Root>
@@ -183,4 +159,4 @@ const AddTask: React.FC<AddTaskProps> = ({ statuses}) => {
   );
 };
 
-export default AddTask;
+export default EditTask;

@@ -1,12 +1,14 @@
 import React from 'react';
 import { Task } from '@/Pages/Task/Task';
 import { Table } from "@chakra-ui/react"
-
+import EditTask from "@/Pages/Task/EditTask"
+import DeleteTask from './DeleteTask';
 type TaskTableProps = {
   tasks: Task[];
+  statuses: { [key: string]: string };
 }
 
-const TaskTable: React.FC<TaskTableProps> = ({ tasks }) => {
+const TaskTable: React.FC<TaskTableProps> = ({ tasks,statuses}) => {
   return (
     <Table.Root size="sm" variant="outline">
       <Table.Header>
@@ -18,6 +20,7 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks }) => {
           <Table.ColumnHeader>Start Time</Table.ColumnHeader>
           <Table.ColumnHeader>End Time</Table.ColumnHeader>
           <Table.ColumnHeader>Status</Table.ColumnHeader>
+          <Table.ColumnHeader>Actions</Table.ColumnHeader>
         </Table.Row>
       </Table.Header>
       <Table.Body>
@@ -31,6 +34,7 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks }) => {
                 <Table.Cell>{item.start_time}</Table.Cell>
                 <Table.Cell>{item.end_time}</Table.Cell>
                 <Table.Cell>{item.status}</Table.Cell>
+                <Table.Cell><EditTask task={item}  statuses={statuses}/> <DeleteTask task={item} />  </Table.Cell>
           </Table.Row>
         ))}
       </Table.Body>

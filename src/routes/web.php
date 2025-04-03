@@ -33,18 +33,17 @@ Route::get('/Home', function () {
         'phpVersion' => PHP_VERSION,
     ]);
 });
-Route::get('/tasks', [TaskController::class, 'index'])
-    ->middleware(['auth', 'verified'])
-    ->name('Task.index');
-
-
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/tasks', [TaskController::class, 'index'])->name('Task.index');
+    Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
     Route::post('/tasks/addtask', [TaskController::class, 'store'])->name('tasks.store');
+    Route::put('/tasks/{id}', [TaskController::class, 'update'])->name('tasks.update');
+    Route::get('/tasks/{id}', [TaskController::class, 'index']);
+    Route::delete('/tasks/{id}', [TaskController::class, 'destroy'])->name('tasks.destroy');
+
 });
 
 

@@ -1,11 +1,9 @@
+// import '../css/app.css';
 import './bootstrap';
-import '../css/app.css';
-
 import { createRoot } from 'react-dom/client';
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
-import { ChakraProvider } from "@chakra-ui/react";
-import { defaultSystem } from "@chakra-ui/react"
+import { Provider } from "@/Components/ui/provider"
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
@@ -17,9 +15,9 @@ createInertiaApp({
   setup({ el, App, props }) {
     const root = createRoot(el);
     root.render(
-      <ChakraProvider  value={defaultSystem}>
+      <Provider>
         <App {...props} />
-      </ChakraProvider>
+      </Provider>
     );
   },
   progress: {
