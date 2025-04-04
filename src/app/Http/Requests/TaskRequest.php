@@ -22,15 +22,16 @@ class TaskRequest extends FormRequest
     public function rules(): array
     {
             return [
-                'user_id'    => 'required|exists:users,id', 
                 'title'      => 'required|string|max:255', 
-                'description'=> 'required|string|max:1000', 
+                'description'=> 'nullable|string|max:1000', 
                 'start_date' => 'required|date',
                 'end_date'   => 'required|date|after_or_equal:start_date', 
-                'start_time' => 'required|date_format:H:i', 
-                'end_time'   => ['required', 'date_format:H:i', function ($attribute, $value, $fail) {
-                    $start_time = $this->input('start_time'); 
-                    if (strtotime($value) <= strtotime($start_time)) {
+                'start_time' => 'required|date_format:H:i:s', 
+                'end_time'   => ['required', 'date_format:H:i:s', function ($attribute, $value, $fail) {
+                    $start_time = $this->input('start_time');
+                    $start_date = $this->input('start_date');
+                    $end_date = $this->input('end_date');
+                    if (strtotime($end_date.' '. $value) <= strtotime($start_date .' '. $start_time)) {
                         $fail('The ' . $attribute . ' must be after start time.');
                     }
                 }],
@@ -42,12 +43,9 @@ class TaskRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'user_id.required' => 'The user is required.',
-            'user_id.exists' => 'The selected user does not exist.',
             'title.required' => 'The title is required.',
             'title.string' => 'The title must be a string.',
             'title.max' => 'The title may not be greater than 255 characters.',
-            'description.required' => 'The description is required.',
             'description.string' => 'The description must be a string.',
             'description.max' => 'The description may not be greater than 1000 characters.',
             'start_date.required' => 'The start date is required.',

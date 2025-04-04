@@ -1,11 +1,8 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Task;
 
-use App\Interfaces\ITaskService;
-use App\Http\Requests\TaskRequest;
 use App\Models\Task;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 class TaskService implements ITaskService

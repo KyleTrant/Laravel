@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Interfaces;
+namespace App\Services\Task;
 
 use Illuminate\Database\Eloquent\Collection;
 use App\Models\Task;

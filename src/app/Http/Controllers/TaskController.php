@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\TaskRequest;
-use App\Interfaces\ITaskService;
-use Illuminate\Http\RedirectResponse;
+use App\Services\Task\ITaskService;
 use Inertia\Response;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use App\Enums\TaskStatus;
 
 class TaskController extends Controller
 {
@@ -20,9 +20,11 @@ class TaskController extends Controller
 
     public function index(): Response
     {
+        
         try {
-            return Inertia::render('Tasks/Index', [
-                'tasks' => $this->taskService->getUserTasks(Auth::id())
+            return Inertia::render('Task/Index', [
+                'tasks' => $this->taskService->getUserTasks(Auth::id()),
+                 'statuses' => TaskStatus::all()
             ]);
         } catch (\Exception $e) {
             return Inertia::render('Error', [
@@ -36,8 +38,9 @@ class TaskController extends Controller
     {
         try {
             $this->taskService->createTask(Auth::id(), $request->validated());
-            return Inertia::render('Tasks/Index', [
-                'tasks' => $this->taskService->getUserTasks(Auth::id())
+            return Inertia::render('Task/Index', [
+                'tasks' => $this->taskService->getUserTasks(Auth::id()),
+                'statuses' => TaskStatus::all()
             ]);
 
         } 
@@ -51,8 +54,9 @@ class TaskController extends Controller
     {
         try {
             $this->taskService->updateTask(Auth::id(), $id, $request->validated());
-            return Inertia::render('Tasks/Index', [
-                'tasks' => $this->taskService->getUserTasks(Auth::id())
+            return Inertia::render('Task/Index', [
+                'tasks' => $this->taskService->getUserTasks(Auth::id()),
+                'statuses' => TaskStatus::all()
             ]);
         } catch (\Exception $e) {
             return Inertia::render('Error', [
@@ -64,8 +68,9 @@ class TaskController extends Controller
     {
         try {
             $this->taskService->deleteTask(Auth::id(), $id);
-            return Inertia::render('Tasks/Index', [
-                'tasks' => $this->taskService->getUserTasks(Auth::id())
+            return Inertia::render('Task/Index', [
+                'tasks' => $this->taskService->getUserTasks(Auth::id()),
+                'statuses' => TaskStatus::all()
             ]);
         } catch (\Exception $e) {
             return Inertia::render('Error', [
