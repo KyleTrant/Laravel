@@ -1,28 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  Button,
-  CloseButton,
-  Dialog,
-  Portal,
-  useDialog,
-  NativeSelect,
-  Textarea,
-  Field,
-  Fieldset,
-  Input,
-
-} from "@chakra-ui/react";
-import { Task } from "@/Pages/Task/Task";
-import { router, usePage } from '@inertiajs/react'
+import { Button, CloseButton, Dialog, Portal, useDialog, NativeSelect, Textarea, Field, Fieldset, Input } from "@chakra-ui/react";
+import { Task } from '@/Pages/Interface/Interface';
+import { router } from '@inertiajs/react'
 import { toaster } from "@/Components/ui/toaster"
 
-interface AddTaskProps {
+type AddTaskProps = {
   statuses: { [key: string]: string };
 }
 const AddTask: React.FC<AddTaskProps> = ({ statuses}) => {
-  console.log("AAAAAAAAA");
   const dialog = useDialog();
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
   const [task, setTask] = useState<Task>({
@@ -40,7 +27,7 @@ const AddTask: React.FC<AddTaskProps> = ({ statuses}) => {
   ) => {
     setTask({ ...task, [e.target.name]: e.target.value });
   };
-
+  const csrfToken = document.head.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
   const handleSave = async () => {
 
     try {
@@ -52,11 +39,11 @@ const AddTask: React.FC<AddTaskProps> = ({ statuses}) => {
         start_time: task.start_time,
         end_time: task.end_time,
         status: task.status,
+        _token: csrfToken,
       };
      
       router.post('/tasks/addtask', taskData, {
         onSuccess: () => {
-          // dialog.onClose();
           setFormErrors({});
           setTask({
             id: Date.now(),
@@ -146,20 +133,18 @@ const AddTask: React.FC<AddTaskProps> = ({ statuses}) => {
                     <Input type="time" step="1" name="end_time" value={task.end_time} onChange={handleChange} required />
                     {formErrors.end_time && <Field.ErrorText>{formErrors.end_time}</Field.ErrorText>}
                   </Field.Root>
-
-                  <Field.Root required>
-                    <Field.Label>Status
-                    <Field.RequiredIndicator />
-                    </Field.Label>
-                    <NativeSelect.Root>
-                    <NativeSelect.Field name="status" value={task.status} onChange={handleChange}>
-                    {Object.entries(statuses).map(([key, value]) => (
-                      <option key={key} value={key}>
-                        {value}
-                      </option>
-                    ))}
-                  </NativeSelect.Field>
-
+                    <Field.Root required>
+                      <Field.Label>Status
+                      <Field.RequiredIndicator />
+                      </Field.Label>
+                      <NativeSelect.Root>
+                        <NativeSelect.Field name="status" value={task.status} onChange={handleChange}>
+                        {Object.entries(statuses).map(([key, value]) => (
+                          <option key={key} value={key}>
+                            {value}
+                          </option>
+                        ))}
+                        </NativeSelect.Field>
                       <NativeSelect.Indicator />
                     </NativeSelect.Root>
                   </Field.Root>

@@ -1,30 +1,18 @@
 "use client";
 
 import React, { useState ,useEffect} from "react";
-import {
-  Button,
-  CloseButton,
-  Dialog,
-  Portal,
-  useDialog,
-  NativeSelect,
-  Textarea,
-  Field,
-  Fieldset,
-  Input,
-  
-} from "@chakra-ui/react";
-import { Task } from "@/Pages/Task/Task";
-import { router, usePage } from '@inertiajs/react'
+import { Button, CloseButton, Dialog, Portal, useDialog, NativeSelect, Textarea, Field, Fieldset, Input } from "@chakra-ui/react";
+import { Task } from "@/Pages/Interface/Interface";
+import { router } from '@inertiajs/react'
 import { toaster } from "@/Components/ui/toaster"
 
 interface EditTaskProps {
   task: Task;
   statuses: { [key: string]: string };
+  dialog: ReturnType<typeof useDialog>;
 } 
-  const EditTask: React.FC<EditTaskProps> = ({task, statuses}) => {
-  console.log("bbbb");
-  const dialog = useDialog();
+  const EditTask: React.FC<EditTaskProps> = ({task, statuses,dialog}) => {
+
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
   const [updatedTask, setUpdatedTask] = useState<Task>(task);
   useEffect(() => {
@@ -35,7 +23,7 @@ interface EditTaskProps {
   ) => {
     setUpdatedTask({ ...updatedTask, [e.target.name]: e.target.value });
   };
-
+  const csrfToken = document.head.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
   const handleSave = () => {
     const taskData = {
         title: updatedTask.title,
@@ -45,6 +33,7 @@ interface EditTaskProps {
         start_time: updatedTask.start_time,
         end_time: updatedTask.end_time,
         status: updatedTask.status,
+        _token: csrfToken
       };
     router.put(`/tasks/${task.id}`, taskData, {
       onSuccess: () => {
@@ -52,6 +41,7 @@ interface EditTaskProps {
           title: `update task successfully`,
           type: "success",
         });
+        dialog.setOpen(false);
         setFormErrors({});
       },
       onError: (error) => {
@@ -65,15 +55,12 @@ interface EditTaskProps {
   };
 
   return (
-    <Dialog.RootProvider value={dialog}>
-      <Dialog.Trigger asChild>
-        <Button variant="solid" size="sm" colorPalette="yellow" onClick={()=> { setFormErrors({});}}>Edit Task</Button>
-      </Dialog.Trigger>
+    <Dialog.RootProvider  value={dialog}>
       <Portal>
         <Dialog.Backdrop />
-        <Dialog.Positioner>
-          <Dialog.Content>
-            <Dialog.Body>
+        <Dialog.Positioner >
+          <Dialog.Content >
+            <Dialog.Body >
             <form onSubmit={(e) => e.preventDefault()}>
               <Fieldset.Root size="lg">
                 <Fieldset.Legend>Edit Task</Fieldset.Legend>
@@ -88,7 +75,7 @@ interface EditTaskProps {
 
                   <Field.Root>
                     <Field.Label>Description</Field.Label>
-                    <Textarea name="description" value={task.description || ""} onChange={handleChange} placeholder="Task description" />
+                    <Textarea name="description" value={updatedTask.description || ""} onChange={handleChange} placeholder="Task description" />
                     {formErrors.Description && <Field.ErrorText>{formErrors.Description}</Field.ErrorText>}
                   </Field.Root >
 
@@ -145,12 +132,12 @@ interface EditTaskProps {
             </Dialog.Body>
             <Dialog.Footer>
               <Dialog.ActionTrigger asChild>
-                <Button variant="outline">Cancel</Button>
+                <Button variant="outline" onClick={()=> { setFormErrors({}); setUpdatedTask(task);}}>Cancel</Button>
               </Dialog.ActionTrigger>
               <Button onClick={handleSave}>Save</Button>
             </Dialog.Footer>
-            <Dialog.CloseTrigger asChild>
-              <CloseButton size="sm" />
+            <Dialog.CloseTrigger  asChild>
+              <CloseButton  size="sm" />
             </Dialog.CloseTrigger>
           </Dialog.Content>
         </Dialog.Positioner>
