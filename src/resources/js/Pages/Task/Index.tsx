@@ -7,21 +7,22 @@ import { Toaster } from "@/Components/ui/toaster"
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 import { PageProps,User } from '@/types';
-
-
+import { Pagination } from '@/Pages/Interface/Interface';
+import  TaskFilter from '@/Pages/Task/FilterTask';
 interface TaskPageProps {
-  tasks: Task[];
+  pagination: Pagination<Task>; 
   statuses: { [key: string]: string };
   auth: { user: User }; 
 }
-const TaskPage: React.FC<TaskPageProps> = ({ tasks, statuses ,auth}) => {
+const TaskPage: React.FC<TaskPageProps> = ({ pagination, statuses ,auth}) => {
+   console.log(pagination);
   return (
 
-    <AuthenticatedLayout
-                user={auth.user}
-                header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Dashboard</h2>}
-            >
-                 <Container>
+    // <AuthenticatedLayout
+    //             user={auth.user}
+    //             header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Dashboard</h2>}
+    //         >
+    <Container>
         <Flex justify="center" align="center" mt={6} >
             <Heading as="h1" fontSize="4xl">
                 Task Management
@@ -30,11 +31,12 @@ const TaskPage: React.FC<TaskPageProps> = ({ tasks, statuses ,auth}) => {
         <Flex justifyContent="flex-end" mb={6}>
         <AddTask statuses={statuses} />
         </Flex>
-      <TaskTable tasks={tasks} statuses={statuses}/>
+        <TaskFilter statuses={statuses} />
+      <TaskTable pagination={pagination} statuses={statuses}/>
  
       <Toaster />
   </Container>
- </AuthenticatedLayout>
+ /* </AuthenticatedLayout> */
 
     
   );

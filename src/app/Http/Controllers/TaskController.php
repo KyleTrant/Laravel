@@ -8,6 +8,7 @@ use Inertia\Response;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use App\Enums\TaskStatus;
+use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
@@ -18,14 +19,24 @@ class TaskController extends Controller
         $this->taskService = $taskService;
     }
 
-    public function index(): Response
+    public function index(Request $request): Response
     {
         
         try {
-            return Inertia::render('Task/Index', [
-                'tasks' => $this->taskService->getUserTasks(Auth::id()),
-                 'statuses' => TaskStatus::all()
-            ]);
+            $filters = [
+                'status' => $request->get('status'),
+                'start_date' => $request->get('start_date'),
+                'end_date' => $request->get('end_date'),
+                'title' => $request->get('title'),  
+                'end_time' => $request->get('end_time'),
+                'start_time' => $request->get('start_time'),          
+                'description' => $request->get('description'),
+            ];
+        $tasks = $this->taskService->getUserTasks(Auth::id(), $filters)->withQueryString();
+        return Inertia::render('Task/Index', [
+            'pagination' => $tasks, 
+            'statuses' => TaskStatus::all(),
+        ]);
         } catch (\Exception $e) {
             return Inertia::render('Error', [
                 'message' => $e->getMessage() 
@@ -34,14 +45,11 @@ class TaskController extends Controller
     }
 
    
-    public function store(TaskRequest $request): Response
+    public function store(TaskRequest $request)
     {
         try {
             $this->taskService->createTask(Auth::id(), $request->validated());
-            return Inertia::render('Task/Index', [
-                'tasks' => $this->taskService->getUserTasks(Auth::id()),
-                'statuses' => TaskStatus::all()
-            ]);
+            return to_route('tasks.index');
 
         } 
         catch (\Exception $e) {
@@ -50,32 +58,27 @@ class TaskController extends Controller
             ]);
         }
     }
-    public function update(TaskRequest $request, int $id): Response
+    public function update(TaskRequest $request, int $id)
     {
         try {
             $this->taskService->updateTask(Auth::id(), $id, $request->validated());
-            return Inertia::render('Task/Index', [
-                'tasks' => $this->taskService->getUserTasks(Auth::id()),
-                'statuses' => TaskStatus::all()
-            ]);
+            return to_route('tasks.index');
         } catch (\Exception $e) {
             return Inertia::render('Error', [
                 'message' => $e->getMessage()
             ]);
         }
     }
-    public function destroy(int $id): Response
+    public function destroy(int $id)
     {
         try {
             $this->taskService->deleteTask(Auth::id(), $id);
-            return Inertia::render('Task/Index', [
-                'tasks' => $this->taskService->getUserTasks(Auth::id()),
-                'statuses' => TaskStatus::all()
-            ]);
+            return to_route('tasks.index');
         } catch (\Exception $e) {
             return Inertia::render('Error', [
                 'message' => $e->getMessage()
             ]);
         }
     }
+   
 }
